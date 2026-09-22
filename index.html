@@ -6,15 +6,12 @@
     <title>Kalkulator Skor Bobot</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* Base styles & layout locking */
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             background-color: #f0f5fa;
             color: #1e293b;
-            overscroll-behavior-y: none;
         }
 
-        /* Neumorphic/Soft Shadow Effects (Inspired by SS1) */
         .soft-card {
             background: #ffffff;
             border-radius: 20px;
@@ -34,37 +31,24 @@
             outline: none;
         }
 
-        /* Circular Progress Styling */
         .progress-ring-circle {
             transition: stroke-dashoffset 0.4s ease-in-out;
             transform: rotate(-90deg);
             transform-origin: 50% 50%;
         }
-
-        /* Custom Scrollbar */
-        .scrollable-content::-webkit-scrollbar {
-            width: 4px;
-        }
-        .scrollable-content::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        .scrollable-content::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 4px;
-        }
     </style>
 </head>
-<body class="h-screen w-screen flex flex-col justify-between overflow-hidden text-slate-800 antialiased">
+<body class="min-h-[100dvh] w-full flex flex-col justify-between text-slate-800 antialiased bg-slate-100">
 
-    <!-- ================= FIXED HEADER ================= -->
-    <header class="bg-gradient-to-b from-blue-600 to-blue-700 text-white p-4 shadow-lg shrink-0 z-20 rounded-b-2xl relative">
+    <!-- ================= FIXED / STICKY HEADER ================= -->
+    <header class="sticky top-0 bg-gradient-to-b from-blue-600 to-blue-700 text-white p-4 shadow-lg shrink-0 z-30 rounded-b-2xl">
         <div class="max-w-md mx-auto">
             
-            <!-- Header Top Bar: Title & Info Modal Trigger -->
+            <!-- Header Top Bar -->
             <div class="flex justify-between items-center mb-3">
                 <h1 class="text-base font-bold tracking-wide flex items-center gap-1.5">
                     <svg class="w-5 h-5 text-blue-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
                     </svg>
                     Kalkulator Bobot
                 </h1>
@@ -74,10 +58,9 @@
                 </button>
             </div>
 
-            <!-- Status Target Selector & Circular Gauge (SS1 Style) -->
+            <!-- Status Target Selector & Circular Gauge -->
             <div class="bg-white/10 backdrop-blur-md rounded-xl p-3 border border-white/20 flex items-center justify-between gap-3">
                 
-                <!-- Left Column: Status Select & Stats -->
                 <div class="flex-1 space-y-2">
                     <div>
                         <label class="text-[10px] uppercase font-semibold text-blue-100 tracking-wider block mb-0.5">Status Karyawan</label>
@@ -100,10 +83,9 @@
                     </div>
                 </div>
 
-                <!-- Right Column: Circular Progress Ring (SS1 Style) -->
+                <!-- Circular Progress Ring -->
                 <div class="relative w-20 h-20 flex items-center justify-center shrink-0 bg-white/5 rounded-full p-1">
                     <svg class="w-full h-full" viewBox="0 0 36 36">
-                        <!-- Background Circle Ring -->
                         <path
                             class="text-blue-900/40"
                             stroke-width="3.5"
@@ -111,7 +93,6 @@
                             fill="none"
                             d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
                         />
-                        <!-- Animated Progress Ring -->
                         <path
                             id="progressCircle"
                             class="text-cyan-300 progress-ring-circle"
@@ -124,7 +105,6 @@
                             d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
                         />
                     </svg>
-                    <!-- Center Percentage Text -->
                     <div class="absolute inset-0 flex flex-col items-center justify-center text-center">
                         <span id="percentText" class="text-xs font-black text-white leading-none">0%</span>
                         <span class="text-[8px] text-blue-200 font-medium">Capaian</span>
@@ -137,7 +117,7 @@
     </header>
 
     <!-- ================= SCROLLABLE MIDDLE CONTENT ================= -->
-    <main class="flex-1 overflow-y-auto scrollable-content p-4 space-y-3 max-w-md mx-auto w-full">
+    <main class="flex-1 p-4 space-y-3 max-w-md mx-auto w-full pb-6">
 
         <!-- Opsi 1: SINGLE -->
         <div class="soft-card p-3.5 space-y-2">
@@ -205,7 +185,7 @@
             </div>
         </div>
 
-        <!-- Skor Bobot Sebelumnya (Input Manual) -->
+        <!-- Skor Bobot Sebelumnya -->
         <div class="soft-card p-3.5 flex items-center justify-between gap-3">
             <div class="flex-1">
                 <label class="text-xs font-bold text-slate-700 block">Skor Bobot Sebelumnya</label>
@@ -218,21 +198,21 @@
 
         <!-- Reset Button -->
         <div class="pt-1 pb-2">
-            <button onclick="resetInputs()" class="w-full bg-slate-200 hover:bg-slate-300 active:bg-slate-400 text-slate-700 text-xs font-bold py-2 rounded-xl transition">
+            <button onclick="resetInputs()" class="w-full bg-slate-200 hover:bg-slate-300 active:bg-slate-400 text-slate-700 text-xs font-bold py-2.5 rounded-xl transition">
                 Reset Semua Input
             </button>
         </div>
 
     </main>
 
-    <!-- ================= FIXED FOOTER ================= -->
-    <footer class="bg-white border-t border-slate-200 py-2.5 px-4 text-center shrink-0 z-20">
-        <p class="text-[11px] font-extrabold tracking-widest text-slate-400 uppercase">
+    <!-- ================= FIXED / STICKY FOOTER ================= -->
+    <footer class="sticky bottom-0 bg-white border-t border-slate-200 py-3 px-4 text-center shrink-0 z-30 shadow-[0_-4px_10px_rgba(0,0,0,0.03)]">
+        <p class="text-[11px] font-extrabold tracking-widest text-slate-500 uppercase">
             POWERED BY MULY@.ID
         </p>
     </footer>
 
-    <!-- ================= MODAL INFORMATION (FITUR INFO '!') ================= -->
+    <!-- ================= MODAL INFORMATION ================= -->
     <div id="infoModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
         <div class="bg-white rounded-2xl max-w-xs w-full p-4 space-y-3 shadow-2xl relative">
             <div class="flex justify-between items-center border-b border-slate-100 pb-2">
@@ -274,43 +254,35 @@
         }
 
         function calculateScore() {
-            // 1. Single Calculation (60% Invoice, 30% SKU, 10% Qty)
+            // Single Calculation
             const sInv = getVal('s_inv');
             const sSku = getVal('s_sku');
             const sQty = getVal('s_qty');
             const singleTotal = (sInv * 0.60) + (sSku * 0.30) + (sQty * 0.10);
 
-            // 2. Multiple Calculation (60% Invoice, 16% SKU, 24% Qty)
+            // Multiple Calculation
             const mInv = getVal('m_inv');
             const mSku = getVal('m_sku');
             const mQty = getVal('m_qty');
             const multipleTotal = (mInv * 0.60) + (mSku * 0.16) + (mQty * 0.24);
 
-            // 3. Bulk Calculation (60% Invoice, 25% SKU, 14% Qty)
+            // Bulk Calculation
             const bInv = getVal('b_inv');
             const bSku = getVal('b_sku');
             const bQty = getVal('b_qty');
             const bulkTotal = (bInv * 0.60) + (bSku * 0.25) + (bQty * 0.14);
 
-            // Update Subtotal Displays
             document.getElementById('subtotalSingle').innerText = `Subtotal: ${singleTotal.toFixed(2)}`;
             document.getElementById('subtotalMultiple').innerText = `Subtotal: ${multipleTotal.toFixed(2)}`;
             document.getElementById('subtotalBulk').innerText = `Subtotal: ${bulkTotal.toFixed(2)}`;
 
-            // Sum of New Current Scores
             const currentScoreTotal = singleTotal + multipleTotal + bulkTotal;
-
-            // Divide by 2
             const halvedCurrentScore = currentScoreTotal / 2;
-
-            // Add Previous Score
             const prevScore = getVal('prevScore');
             const grandTotal = halvedCurrentScore + prevScore;
 
-            // Update Total Overall Display
             document.getElementById('totalScoreText').innerText = grandTotal.toFixed(2);
 
-            // Target & Percentage Ring Update
             const target = parseFloat(document.getElementById('statusSelect').value) || 390;
             document.getElementById('targetDisplay').innerText = target;
 
@@ -318,7 +290,6 @@
             const roundedPercent = Math.min(Math.round(percentage), 999);
             document.getElementById('percentText').innerText = roundedPercent + '%';
 
-            // SVG Stroke Dashoffset Calculation (0 to 100)
             const circleProgress = Math.min(percentage, 100);
             const dashoffset = 100 - circleProgress;
             document.getElementById('progressCircle').style.strokeDashoffset = dashoffset;
@@ -330,10 +301,9 @@
             calculateScore();
         }
 
-        // Initialize default view
         window.onload = function() {
             calculateScore();
         };
     </script>
 </body>
-    </html>
+</html>
