@@ -409,12 +409,23 @@
                                 </td>
                             </tr>
 
-                            <!-- Subtotal Input Baruj Row -->
+                            <!-- Subtotal Input Baru Row -->
                             <tr class="bg-slate-50/80 font-medium text-slate-600">
                                 <td colspan="2" class="py-2 px-2.5">
                                     Total Skor Baru Saat Ini
                                 </td>
                                 <td id="tbl-current-subtotal" class="py-2 px-2.5 text-right font-bold text-slate-800">
+                                    0.0
+                                </td>
+                            </tr>
+
+                            <!-- Hasil Bagi 2 Row -->
+                            <tr class="bg-blue-50/60 font-semibold text-blue-900 border-t border-blue-100/80">
+                                <td colspan="2" class="py-2 px-2.5 flex items-center space-x-1">
+                                    <i class="fa-solid fa-divide text-[10px] text-blue-600"></i>
+                                    <span>Skor Baru (Di-bagi 2)</span>
+                                </td>
+                                <td id="tbl-half-subtotal" class="py-2 px-2.5 text-right font-extrabold text-blue-700">
                                     0.0
                                 </td>
                             </tr>
@@ -448,13 +459,14 @@
             <div class="bg-slate-100/70 rounded-2xl p-3.5 border border-slate-200/60 text-slate-500 text-xs">
                 <div class="flex items-center space-x-1.5 font-semibold text-slate-700 mb-1.5">
                     <i class="fa-solid fa-circle-info text-brand-500"></i>
-                    <span>Informasi Formulas Bobot</span>
+                    <span>Informasi Formulasi Bobot</span>
                 </div>
                 <ul class="space-y-1 text-[11px] text-slate-600 pl-4 list-disc">
                     <li><span class="font-bold text-slate-700">Single:</span> (Invoice × 60%) + (SKU × 30%) + (Qty × 10%)</li>
                     <li><span class="font-bold text-slate-700">Multiple:</span> (Invoice × 60%) + (SKU × 16%) + (Qty × 24%)</li>
                     <li><span class="font-bold text-slate-700">Bulk:</span> (Invoice × 60%) + (SKU × 26%) + (Qty × 14%)</li>
-                    <li><span class="font-bold text-slate-700">Total Keseluruhan:</span> Total Skor Baru + Skor Sebelumnya</li>
+                    <li><span class="font-bold text-slate-700">Skor Baru Netto:</span> Total Skor Baru (Single + Multiple + Bulk) / 2</li>
+                    <li><span class="font-bold text-slate-700">Total Keseluruhan:</span> (Total Skor Baru / 2) + Skor Sebelumnya</li>
                 </ul>
             </div>
 
@@ -547,11 +559,13 @@
             document.getElementById('prev-score-badge').innerText = formatNum(prevScore);
             document.getElementById('tbl-prev-score').innerText = formatNum(prevScore);
 
-            // --- GRAND TOTAL & BREAKDOWN BAR ---
+            // --- DIVIDE BY 2 STEP & GRAND TOTAL ---
             const currentSubtotal = totalSingle + totalMultiple + totalBulk;
-            const grandTotal = currentSubtotal + prevScore;
+            const halfSubtotal = currentSubtotal / 2; // Hitung total bobot saat ini / 2
+            const grandTotal = halfSubtotal + prevScore;
 
             document.getElementById('tbl-current-subtotal').innerText = formatNum(currentSubtotal);
+            document.getElementById('tbl-half-subtotal').innerText = formatNum(halfSubtotal);
             document.getElementById('grand-total-display').innerText = formatNum(grandTotal);
             document.getElementById('tbl-total-score').innerText = formatNum(grandTotal);
 
@@ -610,6 +624,8 @@
             const singleScore = document.getElementById('score-single').innerText;
             const multipleScore = document.getElementById('score-multiple').innerText;
             const bulkScore = document.getElementById('score-bulk').innerText;
+            const currentSubtotal = document.getElementById('tbl-current-subtotal').innerText;
+            const halfSubtotal = document.getElementById('tbl-half-subtotal').innerText;
             const prevScore = document.getElementById('prev-score-badge').innerText;
             const grandTotal = document.getElementById('grand-total-display').innerText;
 
@@ -617,6 +633,8 @@
                 `• Skor Single: ${singleScore}\n` +
                 `• Skor Multiple: ${multipleScore}\n` +
                 `• Skor Bulk: ${bulkScore}\n` +
+                `• Total Skor Baru: ${currentSubtotal}\n` +
+                `• Hasil Bagi 2 (Skor Baru Netto): ${halfSubtotal}\n` +
                 `• Skor Sebelumnya: ${prevScore}\n` +
                 `-----------------------------\n` +
                 `TOTAL BOBOT KESELURUHAN: ${grandTotal} poin`;
