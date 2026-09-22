@@ -5,672 +5,335 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Kalkulator Skor Bobot</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Plus Jakarta Sans', 'sans-serif'],
-                    },
-                    colors: {
-                        brand: {
-                            50: '#eff6ff',
-                            100: '#dbeafe',
-                            200: '#bfdbfe',
-                            300: '#93c5fd',
-                            400: '#60a5fa',
-                            500: '#3b82f6',
-                            600: '#2563eb',
-                            700: '#1d4ed8',
-                            800: '#1e40af',
-                            900: '#1e3a8a',
-                            950: '#172554',
-                        }
-                    },
-                    boxShadow: {
-                        'glass': '0 8px 32px 0 rgba(31, 38, 135, 0.08)',
-                        'card': '0 10px 30px -5px rgba(37, 99, 235, 0.08)',
-                    }
-                }
-            }
-        }
-    </script>
     <style>
+        /* Base styles & layout locking */
         body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-            min-height: 100vh;
-            touch-action: manipulation;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f0f5fa;
+            color: #1e293b;
+            overscroll-behavior-y: none;
         }
 
-        .bg-gradient-primary {
-            background: linear-gradient(135deg, #2563eb 0%, #3b82f6 50%, #60a5fa 100%);
+        /* Neumorphic/Soft Shadow Effects (Inspired by SS1) */
+        .soft-card {
+            background: #ffffff;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px -5px rgba(186, 210, 238, 0.4), 0 8px 10px -6px rgba(186, 210, 238, 0.2);
         }
 
-        /* Number input style customization */
-        input[type=number]::-webkit-inner-spin-button,
-        input[type=number]::-webkit-outer-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
-        }
-        input[type=number] {
-            -moz-appearance: textfield;
+        .soft-input {
+            background: #f4f8fc;
+            border: 1px solid #dbe6f2;
+            transition: all 0.2s ease;
         }
 
-        /* Custom scrollbar */
-        ::-webkit-scrollbar {
-            width: 6px;
+        .soft-input:focus {
+            background: #ffffff;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+            outline: none;
         }
-        ::-webkit-scrollbar-track {
+
+        /* Circular Progress Styling */
+        .progress-ring-circle {
+            transition: stroke-dashoffset 0.4s ease-in-out;
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+        }
+
+        /* Custom Scrollbar */
+        .scrollable-content::-webkit-scrollbar {
+            width: 4px;
+        }
+        .scrollable-content::-webkit-scrollbar-track {
             background: transparent;
         }
-        ::-webkit-scrollbar-thumb {
-            background: rgba(148, 163, 184, 0.3);
-            border-radius: 10px;
-        }
-
-        /* Toast Popup Animation */
-        @keyframes slideUp {
-            from { transform: translateY(100%); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-        .toast-animate {
-            animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        .scrollable-content::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
         }
     </style>
 </head>
-<body class="flex justify-center items-start sm:py-6 px-0 sm:px-4 text-slate-800">
+<body class="h-screen w-screen flex flex-col justify-between overflow-hidden text-slate-800 antialiased">
 
-    <!-- Mobile Shell Container -->
-    <div class="w-full max-w-md min-h-screen sm:min-h-[900px] bg-slate-50 sm:rounded-[36px] shadow-2xl flex flex-col overflow-hidden relative border-0 sm:border-8 border-slate-900/80">
-        
-        <!-- Top Header -->
-        <header class="bg-gradient-primary text-white p-5 pt-8 pb-6 rounded-b-[28px] shadow-lg relative z-10">
-            <div class="flex justify-between items-center mb-4">
-                <div class="flex items-center space-x-2.5">
-                    <div class="w-10 h-10 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center text-white text-lg shadow-inner">
-                        <i class="fa-solid me-0.5 fa-calculator"></i>
-                    </div>
-                    <div>
-                        <h1 class="text-lg font-bold leading-tight">Kalkulator Skor</h1>
-                        <p class="text-xs text-blue-100 font-medium">Bobot Kategori Multi-Order</p>
-                    </div>
-                </div>
-                <!-- Action Buttons -->
-                <div class="flex items-center space-x-1.5">
-                    <button onclick="fillExampleData()" title="Isi Contoh Data" class="px-2.5 py-1.5 bg-white/15 hover:bg-white/25 active:scale-95 text-xs font-semibold rounded-xl backdrop-blur-md border border-white/20 transition-all flex items-center space-x-1">
-                        <i class="fa-solid fa-wand-magic-sparkles text-amber-300"></i>
-                        <span>Contoh</span>
-                    </button>
-                    <button onclick="resetForm()" title="Reset Data" class="p-1.5 w-8 h-8 bg-white/15 hover:bg-white/25 active:scale-95 text-xs font-semibold rounded-xl backdrop-blur-md border border-white/20 transition-all flex items-center justify-center text-white">
-                        <i class="fa-solid fa-rotate-right"></i>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Grand Total Main Card -->
-            <div class="mt-2 bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/20 shadow-inner relative overflow-hidden">
-                <div class="absolute -right-6 -bottom-6 w-24 h-24 bg-white/10 rounded-full blur-xl pointer-events-none"></div>
-                <div class="flex justify-between items-end">
-                    <div>
-                        <span class="text-xs uppercase tracking-wider text-blue-100 font-semibold block mb-0.5">Total Bobot Keseluruhan</span>
-                        <div class="flex items-baseline space-x-1">
-                            <span id="grand-total-display" class="text-3xl font-extrabold tracking-tight text-white drop-shadow-sm">0</span>
-                            <span class="text-xs text-blue-200 font-medium">poin</span>
-                        </div>
-                    </div>
-                    <div class="text-right">
-                        <span id="grand-items-count" class="text-[11px] bg-blue-900/40 px-2.5 py-1 rounded-full border border-white/10 font-medium text-blue-100 inline-block">
-                            0 total invoice
-                        </span>
-                    </div>
-                </div>
+    <!-- ================= FIXED HEADER ================= -->
+    <header class="bg-gradient-to-b from-blue-600 to-blue-700 text-white p-4 shadow-lg shrink-0 z-20 rounded-b-2xl relative">
+        <div class="max-w-md mx-auto">
+            
+            <!-- Header Top Bar: Title & Info Modal Trigger -->
+            <div class="flex justify-between items-center mb-3">
+                <h1 class="text-base font-bold tracking-wide flex items-center gap-1.5">
+                    <svg class="w-5 h-5 text-blue-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                    </svg>
+                    Kalkulator Bobot
+                </h1>
                 
-                <!-- Quick Category Weight Bar Visualizer -->
-                <div class="mt-3.5 pt-3 border-t border-white/15">
-                    <div class="flex justify-between text-[11px] text-blue-100 font-medium mb-1.5">
-                        <span>Kontribusi Skor Kategori</span>
-                        <span id="total-contribution-perc">0%</span>
-                    </div>
-                    <div class="w-full bg-blue-950/40 rounded-full h-2.5 flex overflow-hidden p-0.5 border border-white/10">
-                        <div id="bar-single" class="bg-cyan-300 h-full rounded-l-full transition-all duration-500" style="width: 0%" title="Single"></div>
-                        <div id="bar-multiple" class="bg-amber-300 h-full transition-all duration-500" style="width: 0%" title="Multiple"></div>
-                        <div id="bar-bulk" class="bg-emerald-300 h-full rounded-r-full transition-all duration-500" style="width: 0%" title="Bulk"></div>
-                    </div>
-                    <div class="flex justify-between items-center text-[10px] text-blue-100/80 mt-1.5 px-0.5">
-                        <div class="flex items-center space-x-1">
-                            <span class="w-2 h-2 rounded-full bg-cyan-300 inline-block"></span>
-                            <span>Single</span>
-                        </div>
-                        <div class="flex items-center space-x-1">
-                            <span class="w-2 h-2 rounded-full bg-amber-300 inline-block"></span>
-                            <span>Multiple</span>
-                        </div>
-                        <div class="flex items-center space-x-1">
-                            <span class="w-2 h-2 rounded-full bg-emerald-300 inline-block"></span>
-                            <span>Bulk</span>
-                        </div>
-                    </div>
-                </div>
+                <button onclick="toggleModal(true)" class="w-7 h-7 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center font-bold text-sm transition text-blue-50 border border-white/30 active:scale-95" aria-label="Informasi Bobot">
+                    !
+                </button>
             </div>
-        </header>
 
-        <!-- Main Content Area -->
-        <main class="flex-1 overflow-y-auto px-4 py-5 space-y-4">
+            <!-- Status Target Selector & Circular Gauge (SS1 Style) -->
+            <div class="bg-white/10 backdrop-blur-md rounded-xl p-3 border border-white/20 flex items-center justify-between gap-3">
+                
+                <!-- Left Column: Status Select & Stats -->
+                <div class="flex-1 space-y-2">
+                    <div>
+                        <label class="text-[10px] uppercase font-semibold text-blue-100 tracking-wider block mb-0.5">Status Karyawan</label>
+                        <select id="statusSelect" onchange="calculateScore()" class="w-full bg-white text-slate-800 text-xs font-semibold rounded-lg px-2.5 py-1.5 shadow-sm focus:outline-none cursor-pointer">
+                            <option value="300">Probation (Target: 300)</option>
+                            <option value="390" selected>Non Probation (Target: 390)</option>
+                            <option value="150">Perbantuan (Target: 150)</option>
+                        </select>
+                    </div>
 
-            <!-- 1. KATEGORI SINGLE -->
-            <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-sm relative">
-                <div class="flex justify-between items-center mb-3">
-                    <div class="flex items-center space-x-2">
-                        <div class="w-7 h-7 rounded-lg bg-cyan-50 text-cyan-600 flex items-center justify-center font-bold text-xs">
-                            <i class="fa-solid fa-user"></i>
-                        </div>
+                    <div class="pt-1 border-t border-white/10 flex justify-between items-end">
                         <div>
-                            <h3 class="font-bold text-slate-800 text-sm">Opsi 1: SINGLE</h3>
-                            <p class="text-[10px] text-slate-400 font-medium">Invoice 60% • SKU 30% • Qty 10%</p>
+                            <span class="text-[10px] text-blue-200 block">Total Bobot</span>
+                            <span id="totalScoreText" class="text-xl font-black text-white leading-none">0.00</span>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-[10px] text-blue-200 block">Target</span>
+                            <span id="targetDisplay" class="text-xs font-bold text-blue-100">390</span>
                         </div>
                     </div>
-                    <div class="text-right">
-                        <span id="score-single" class="text-base font-extrabold text-cyan-600 bg-cyan-50 px-2.5 py-1 rounded-xl border border-cyan-100 inline-block">
-                            0.0
-                        </span>
+                </div>
+
+                <!-- Right Column: Circular Progress Ring (SS1 Style) -->
+                <div class="relative w-20 h-20 flex items-center justify-center shrink-0 bg-white/5 rounded-full p-1">
+                    <svg class="w-full h-full" viewBox="0 0 36 36">
+                        <!-- Background Circle Ring -->
+                        <path
+                            class="text-blue-900/40"
+                            stroke-width="3.5"
+                            stroke="currentColor"
+                            fill="none"
+                            d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                        />
+                        <!-- Animated Progress Ring -->
+                        <path
+                            id="progressCircle"
+                            class="text-cyan-300 progress-ring-circle"
+                            stroke-width="3.5"
+                            stroke-dasharray="100, 100"
+                            stroke-dashoffset="100"
+                            stroke-linecap="round"
+                            stroke="currentColor"
+                            fill="none"
+                            d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                        />
+                    </svg>
+                    <!-- Center Percentage Text -->
+                    <div class="absolute inset-0 flex flex-col items-center justify-center text-center">
+                        <span id="percentText" class="text-xs font-black text-white leading-none">0%</span>
+                        <span class="text-[8px] text-blue-200 font-medium">Capaian</span>
                     </div>
                 </div>
 
-                <!-- Inputs Grid -->
-                <div class="grid grid-cols-3 gap-2 mt-2">
-                    <div>
-                        <label class="block text-[11px] font-semibold text-slate-500 mb-1">
-                            Invoice <span class="text-slate-300 font-normal">(60%)</span>
-                        </label>
-                        <input type="number" min="0" id="single-inv" placeholder="0" oninput="calculateScores()"
-                            class="w-full bg-slate-50 border border-slate-200 focus:border-cyan-500 focus:bg-white focus:ring-2 focus:ring-cyan-200 text-slate-800 font-bold text-sm rounded-xl px-2.5 py-2 outline-none transition-colors">
-                    </div>
-                    <div>
-                        <label class="block text-[11px] font-semibold text-slate-500 mb-1">
-                            SKU <span class="text-slate-300 font-normal">(30%)</span>
-                        </label>
-                        <input type="number" min="0" id="single-sku" placeholder="0" oninput="calculateScores()"
-                            class="w-full bg-slate-50 border border-slate-200 focus:border-cyan-500 focus:bg-white focus:ring-2 focus:ring-cyan-200 text-slate-800 font-bold text-sm rounded-xl px-2.5 py-2 outline-none transition-colors">
-                    </div>
-                    <div>
-                        <label class="block text-[11px] font-semibold text-slate-500 mb-1">
-                            Qty <span class="text-slate-300 font-normal">(10%)</span>
-                        </label>
-                        <input type="number" min="0" id="single-qty" placeholder="0" oninput="calculateScores()"
-                            class="w-full bg-slate-50 border border-slate-200 focus:border-cyan-500 focus:bg-white focus:ring-2 focus:ring-cyan-200 text-slate-800 font-bold text-sm rounded-xl px-2.5 py-2 outline-none transition-colors">
-                    </div>
-                </div>
-
-                <!-- Sub breakdown -->
-                <div id="sub-single-breakdown" class="mt-2.5 pt-2 border-t border-slate-100 text-[10px] text-slate-400 flex justify-between">
-                    <span>Invoice: <span id="sub-single-inv-score" class="text-slate-600 font-semibold">0</span></span>
-                    <span>SKU: <span id="sub-single-sku-score" class="text-slate-600 font-semibold">0</span></span>
-                    <span>Qty: <span id="sub-single-qty-score" class="text-slate-600 font-semibold">0</span></span>
-                </div>
             </div>
 
-            <!-- 2. KATEGORI MULTIPLE -->
-            <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-sm relative">
-                <div class="flex justify-between items-center mb-3">
-                    <div class="flex items-center space-x-2">
-                        <div class="w-7 h-7 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center font-bold text-xs">
-                            <i class="fa-solid fa-users"></i>
-                        </div>
-                        <div>
-                            <h3 class="font-bold text-slate-800 text-sm">Opsi 2: MULTIPLE</h3>
-                            <p class="text-[10px] text-slate-400 font-medium">Invoice 60% • SKU 16% • Qty 24%</p>
-                        </div>
-                    </div>
-                    <div class="text-right">
-                        <span id="score-multiple" class="text-base font-extrabold text-amber-600 bg-amber-50 px-2.5 py-1 rounded-xl border border-amber-100 inline-block">
-                            0.0
-                        </span>
-                    </div>
-                </div>
+        </div>
+    </header>
 
-                <!-- Inputs Grid -->
-                <div class="grid grid-cols-3 gap-2 mt-2">
-                    <div>
-                        <label class="block text-[11px] font-semibold text-slate-500 mb-1">
-                            Invoice <span class="text-slate-300 font-normal">(60%)</span>
-                        </label>
-                        <input type="number" min="0" id="multiple-inv" placeholder="0" oninput="calculateScores()"
-                            class="w-full bg-slate-50 border border-slate-200 focus:border-amber-500 focus:bg-white focus:ring-2 focus:ring-amber-200 text-slate-800 font-bold text-sm rounded-xl px-2.5 py-2 outline-none transition-colors">
-                    </div>
-                    <div>
-                        <label class="block text-[11px] font-semibold text-slate-500 mb-1">
-                            SKU <span class="text-slate-300 font-normal">(16%)</span>
-                        </label>
-                        <input type="number" min="0" id="multiple-sku" placeholder="0" oninput="calculateScores()"
-                            class="w-full bg-slate-50 border border-slate-200 focus:border-amber-500 focus:bg-white focus:ring-2 focus:ring-amber-200 text-slate-800 font-bold text-sm rounded-xl px-2.5 py-2 outline-none transition-colors">
-                    </div>
-                    <div>
-                        <label class="block text-[11px] font-semibold text-slate-500 mb-1">
-                            Qty <span class="text-slate-300 font-normal">(24%)</span>
-                        </label>
-                        <input type="number" min="0" id="multiple-qty" placeholder="0" oninput="calculateScores()"
-                            class="w-full bg-slate-50 border border-slate-200 focus:border-amber-500 focus:bg-white focus:ring-2 focus:ring-amber-200 text-slate-800 font-bold text-sm rounded-xl px-2.5 py-2 outline-none transition-colors">
-                    </div>
-                </div>
+    <!-- ================= SCROLLABLE MIDDLE CONTENT ================= -->
+    <main class="flex-1 overflow-y-auto scrollable-content p-4 space-y-3 max-w-md mx-auto w-full">
 
-                <!-- Sub breakdown -->
-                <div id="sub-multiple-breakdown" class="mt-2.5 pt-2 border-t border-slate-100 text-[10px] text-slate-400 flex justify-between">
-                    <span>Invoice: <span id="sub-multiple-inv-score" class="text-slate-600 font-semibold">0</span></span>
-                    <span>SKU: <span id="sub-multiple-sku-score" class="text-slate-600 font-semibold">0</span></span>
-                    <span>Qty: <span id="sub-multiple-qty-score" class="text-slate-600 font-semibold">0</span></span>
+        <!-- Opsi 1: SINGLE -->
+        <div class="soft-card p-3.5 space-y-2">
+            <div class="flex justify-between items-center border-b border-slate-100 pb-1.5">
+                <span class="text-xs font-bold text-blue-900 tracking-wide">OPSI 1: SINGLE</span>
+                <span id="subtotalSingle" class="text-xs font-semibold text-blue-600">Subtotal: 0.00</span>
+            </div>
+            <div class="grid grid-cols-3 gap-2">
+                <div>
+                    <label class="text-[10px] font-semibold text-slate-500 block mb-1">Invoice</label>
+                    <input type="number" id="s_inv" placeholder="0" oninput="calculateScore()" class="soft-input w-full rounded-lg px-2 py-1.5 text-xs text-slate-800 font-semibold text-center">
+                </div>
+                <div>
+                    <label class="text-[10px] font-semibold text-slate-500 block mb-1">SKU</label>
+                    <input type="number" id="s_sku" placeholder="0" oninput="calculateScore()" class="soft-input w-full rounded-lg px-2 py-1.5 text-xs text-slate-800 font-semibold text-center">
+                </div>
+                <div>
+                    <label class="text-[10px] font-semibold text-slate-500 block mb-1">Qty</label>
+                    <input type="number" id="s_qty" placeholder="0" oninput="calculateScore()" class="soft-input w-full rounded-lg px-2 py-1.5 text-xs text-slate-800 font-semibold text-center">
                 </div>
             </div>
-
-            <!-- 3. KATEGORI BULK -->
-            <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-sm relative">
-                <div class="flex justify-between items-center mb-3">
-                    <div class="flex items-center space-x-2">
-                        <div class="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-xs">
-                            <i class="fa-solid fa-boxes-stacked"></i>
-                        </div>
-                        <div>
-                            <h3 class="font-bold text-slate-800 text-sm">Opsi 3: BULK</h3>
-                            <p class="text-[10px] text-slate-400 font-medium">Invoice 60% • SKU 26% • Qty 14%</p>
-                        </div>
-                    </div>
-                    <div class="text-right">
-                        <span id="score-bulk" class="text-base font-extrabold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-xl border border-emerald-100 inline-block">
-                            0.0
-                        </span>
-                    </div>
-                </div>
-
-                <!-- Inputs Grid -->
-                <div class="grid grid-cols-3 gap-2 mt-2">
-                    <div>
-                        <label class="block text-[11px] font-semibold text-slate-500 mb-1">
-                            Invoice <span class="text-slate-300 font-normal">(60%)</span>
-                        </label>
-                        <input type="number" min="0" id="bulk-inv" placeholder="0" oninput="calculateScores()"
-                            class="w-full bg-slate-50 border border-slate-200 focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-200 text-slate-800 font-bold text-sm rounded-xl px-2.5 py-2 outline-none transition-colors">
-                    </div>
-                    <div>
-                        <label class="block text-[11px] font-semibold text-slate-500 mb-1">
-                            SKU <span class="text-slate-300 font-normal">(26%)</span>
-                        </label>
-                        <input type="number" min="0" id="bulk-sku" placeholder="0" oninput="calculateScores()"
-                            class="w-full bg-slate-50 border border-slate-200 focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-200 text-slate-800 font-bold text-sm rounded-xl px-2.5 py-2 outline-none transition-colors">
-                    </div>
-                    <div>
-                        <label class="block text-[11px] font-semibold text-slate-500 mb-1">
-                            Qty <span class="text-slate-300 font-normal">(14%)</span>
-                        </label>
-                        <input type="number" min="0" id="bulk-qty" placeholder="0" oninput="calculateScores()"
-                            class="w-full bg-slate-50 border border-slate-200 focus:border-emerald-500 focus:bg-white focus:ring-2 focus:ring-emerald-200 text-slate-800 font-bold text-sm rounded-xl px-2.5 py-2 outline-none transition-colors">
-                    </div>
-                </div>
-
-                <!-- Sub breakdown -->
-                <div id="sub-bulk-breakdown" class="mt-2.5 pt-2 border-t border-slate-100 text-[10px] text-slate-400 flex justify-between">
-                    <span>Invoice: <span id="sub-bulk-inv-score" class="text-slate-600 font-semibold">0</span></span>
-                    <span>SKU: <span id="sub-bulk-sku-score" class="text-slate-600 font-semibold">0</span></span>
-                    <span>Qty: <span id="sub-bulk-qty-score" class="text-slate-600 font-semibold">0</span></span>
-                </div>
-            </div>
-
-            <!-- 4. SKOR BOBOT SEBELUMNYA (MANUAL INPUT) -->
-            <div class="bg-indigo-50/60 rounded-2xl p-4 border border-indigo-100 shadow-sm relative">
-                <div class="flex justify-between items-center mb-2">
-                    <div class="flex items-center space-x-2">
-                        <div class="w-7 h-7 rounded-lg bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold text-xs">
-                            <i class="fa-solid fa-clock-rotate-left"></i>
-                        </div>
-                        <div>
-                            <h3 class="font-bold text-slate-800 text-sm">Skor Bobot Sebelumnya</h3>
-                            <p class="text-[10px] text-slate-500 font-medium">Input manual nilai skor periode lalu</p>
-                        </div>
-                    </div>
-                    <div class="text-right">
-                        <span id="prev-score-badge" class="text-base font-extrabold text-indigo-600 bg-white px-2.5 py-1 rounded-xl border border-indigo-200 inline-block">
-                            0.0
-                        </span>
-                    </div>
-                </div>
-
-                <div class="mt-2">
-                    <label class="block text-[11px] font-semibold text-slate-600 mb-1">
-                        Masukkan Skor Bobot Sebelumnya
-                    </label>
-                    <input type="number" min="0" step="any" id="prev-score-input" placeholder="Isi skor sebelumnya..." oninput="calculateScores()"
-                        class="w-full bg-white border border-indigo-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 text-slate-800 font-bold text-sm rounded-xl px-3 py-2.5 outline-none transition-colors shadow-sm">
-                </div>
-            </div>
-
-            <!-- TABLE/CARD JUMLAH BOBOT SCORE SAAT INI -->
-            <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-sm">
-                <div class="flex justify-between items-center mb-3">
-                    <div class="flex items-center space-x-2">
-                        <i class="fa-solid fa-chart-pie text-brand-600 text-sm"></i>
-                        <h3 class="font-bold text-slate-800 text-sm">Jumlah Bobot Score Saat Ini</h3>
-                    </div>
-                    <button onclick="copyResults()" title="Salin Ringkasan" class="text-xs text-brand-600 hover:text-brand-700 bg-brand-50 hover:bg-brand-100 px-2.5 py-1 rounded-lg font-semibold transition-all flex items-center space-x-1">
-                        <i class="fa-regular fa-copy"></i>
-                        <span>Salin</span>
-                    </button>
-                </div>
-
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-xs">
-                        <thead>
-                            <tr class="bg-slate-50 text-slate-400 font-semibold border-b border-slate-100">
-                                <th class="py-2 px-2.5 rounded-l-lg">Kategori</th>
-                                <th class="py-2 px-1 text-center">Rumus Bobot</th>
-                                <th class="py-2 px-2.5 text-right rounded-r-lg">Skor Akhir</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-slate-100">
-                            <!-- Single Row -->
-                            <tr class="hover:bg-slate-50/60 transition-colors">
-                                <td class="py-2.5 px-2.5 font-bold text-slate-700 flex items-center space-x-1.5">
-                                    <span class="w-2 h-2 rounded-full bg-cyan-500"></span>
-                                    <span>Single</span>
-                                </td>
-                                <td class="py-2.5 px-1 text-center text-[10px] text-slate-400 font-medium">
-                                    60% : 30% : 10%
-                                </td>
-                                <td id="tbl-single-score" class="py-2.5 px-2.5 text-right font-extrabold text-slate-800">
-                                    0.0
-                                </td>
-                            </tr>
-
-                            <!-- Multiple Row -->
-                            <tr class="hover:bg-slate-50/60 transition-colors">
-                                <td class="py-2.5 px-2.5 font-bold text-slate-700 flex items-center space-x-1.5">
-                                    <span class="w-2 h-2 rounded-full bg-amber-500"></span>
-                                    <span>Multiple</span>
-                                </td>
-                                <td class="py-2.5 px-1 text-center text-[10px] text-slate-400 font-medium">
-                                    60% : 16% : 24%
-                                </td>
-                                <td id="tbl-multiple-score" class="py-2.5 px-2.5 text-right font-extrabold text-slate-800">
-                                    0.0
-                                </td>
-                            </tr>
-
-                            <!-- Bulk Row -->
-                            <tr class="hover:bg-slate-50/60 transition-colors">
-                                <td class="py-2.5 px-2.5 font-bold text-slate-700 flex items-center space-x-1.5">
-                                    <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-                                    <span>Bulk</span>
-                                </td>
-                                <td class="py-2.5 px-1 text-center text-[10px] text-slate-400 font-medium">
-                                    60% : 26% : 14%
-                                </td>
-                                <td id="tbl-bulk-score" class="py-2.5 px-2.5 text-right font-extrabold text-slate-800">
-                                    0.0
-                                </td>
-                            </tr>
-
-                            <!-- Subtotal Input Baru Row -->
-                            <tr class="bg-slate-50/80 font-medium text-slate-600">
-                                <td colspan="2" class="py-2 px-2.5">
-                                    Total Skor Baru Saat Ini
-                                </td>
-                                <td id="tbl-current-subtotal" class="py-2 px-2.5 text-right font-bold text-slate-800">
-                                    0.0
-                                </td>
-                            </tr>
-
-                            <!-- Hasil Bagi 2 Row -->
-                            <tr class="bg-blue-50/60 font-semibold text-blue-900 border-t border-blue-100/80">
-                                <td colspan="2" class="py-2 px-2.5 flex items-center space-x-1">
-                                    <i class="fa-solid fa-divide text-[10px] text-blue-600"></i>
-                                    <span>Skor Baru (Di-bagi 2)</span>
-                                </td>
-                                <td id="tbl-half-subtotal" class="py-2 px-2.5 text-right font-extrabold text-blue-700">
-                                    0.0
-                                </td>
-                            </tr>
-
-                            <!-- Skor Bobot Sebelumnya Row -->
-                            <tr class="bg-indigo-50/40 text-indigo-900 font-medium">
-                                <td colspan="2" class="py-2 px-2.5 flex items-center space-x-1">
-                                    <i class="fa-solid fa-plus text-[10px] text-indigo-500"></i>
-                                    <span>Skor Bobot Sebelumnya</span>
-                                </td>
-                                <td id="tbl-prev-score" class="py-2 px-2.5 text-right font-bold text-indigo-700">
-                                    0.0
-                                </td>
-                            </tr>
-                        </tbody>
-                        <tfoot>
-                            <tr class="bg-brand-50/80 font-bold border-t-2 border-brand-100">
-                                <td colspan="2" class="py-2.5 px-2.5 text-brand-900 font-bold text-xs rounded-l-lg">
-                                    TOTAL BOBOT KESELURUHAN
-                                </td>
-                                <td id="tbl-total-score" class="py-2.5 px-2.5 text-right text-brand-700 font-black text-sm rounded-r-lg">
-                                    0.0
-                                </td>
-                            </tr>
-                        </tfoot>
-                    </table>
-                </div>
-            </div>
-
-            <!-- Formula Reference Card -->
-            <div class="bg-slate-100/70 rounded-2xl p-3.5 border border-slate-200/60 text-slate-500 text-xs">
-                <div class="flex items-center space-x-1.5 font-semibold text-slate-700 mb-1.5">
-                    <i class="fa-solid fa-circle-info text-brand-500"></i>
-                    <span>Informasi Formulasi Bobot</span>
-                </div>
-                <ul class="space-y-1 text-[11px] text-slate-600 pl-4 list-disc">
-                    <li><span class="font-bold text-slate-700">Single:</span> (Invoice × 60%) + (SKU × 30%) + (Qty × 10%)</li>
-                    <li><span class="font-bold text-slate-700">Multiple:</span> (Invoice × 60%) + (SKU × 16%) + (Qty × 24%)</li>
-                    <li><span class="font-bold text-slate-700">Bulk:</span> (Invoice × 60%) + (SKU × 26%) + (Qty × 14%)</li>
-                    <li><span class="font-bold text-slate-700">Skor Baru Netto:</span> Total Skor Baru (Single + Multiple + Bulk) / 2</li>
-                    <li><span class="font-bold text-slate-700">Total Keseluruhan:</span> (Total Skor Baru / 2) + Skor Sebelumnya</li>
-                </ul>
-            </div>
-
-        </main>
-
-        <!-- Footer -->
-        <footer class="py-3 px-4 bg-slate-100 border-t border-slate-200/60 text-center">
-            <p class="text-[11px] font-bold tracking-wider text-slate-500 uppercase">
-                POWERED BY MULY@.ID
-            </p>
-        </footer>
-
-        <!-- Toast Notification Container -->
-        <div id="toast" class="hidden absolute bottom-12 left-1/2 -translate-x-1/2 bg-slate-900/90 backdrop-blur-md text-white text-xs px-4 py-2.5 rounded-full shadow-2xl flex items-center space-x-2 z-50 border border-white/10 whitespace-nowrap">
-            <i class="fa-solid fa-circle-check text-emerald-400"></i>
-            <span id="toast-message">Data berhasil disalin!</span>
         </div>
 
+        <!-- Opsi 2: MULTIPLE -->
+        <div class="soft-card p-3.5 space-y-2">
+            <div class="flex justify-between items-center border-b border-slate-100 pb-1.5">
+                <span class="text-xs font-bold text-blue-900 tracking-wide">OPSI 2: MULTIPLE</span>
+                <span id="subtotalMultiple" class="text-xs font-semibold text-blue-600">Subtotal: 0.00</span>
+            </div>
+            <div class="grid grid-cols-3 gap-2">
+                <div>
+                    <label class="text-[10px] font-semibold text-slate-500 block mb-1">Invoice</label>
+                    <input type="number" id="m_inv" placeholder="0" oninput="calculateScore()" class="soft-input w-full rounded-lg px-2 py-1.5 text-xs text-slate-800 font-semibold text-center">
+                </div>
+                <div>
+                    <label class="text-[10px] font-semibold text-slate-500 block mb-1">SKU</label>
+                    <input type="number" id="m_sku" placeholder="0" oninput="calculateScore()" class="soft-input w-full rounded-lg px-2 py-1.5 text-xs text-slate-800 font-semibold text-center">
+                </div>
+                <div>
+                    <label class="text-[10px] font-semibold text-slate-500 block mb-1">Qty</label>
+                    <input type="number" id="m_qty" placeholder="0" oninput="calculateScore()" class="soft-input w-full rounded-lg px-2 py-1.5 text-xs text-slate-800 font-semibold text-center">
+                </div>
+            </div>
+        </div>
+
+        <!-- Opsi 3: BULK -->
+        <div class="soft-card p-3.5 space-y-2">
+            <div class="flex justify-between items-center border-b border-slate-100 pb-1.5">
+                <span class="text-xs font-bold text-blue-900 tracking-wide">OPSI 3: BULK</span>
+                <span id="subtotalBulk" class="text-xs font-semibold text-blue-600">Subtotal: 0.00</span>
+            </div>
+            <div class="grid grid-cols-3 gap-2">
+                <div>
+                    <label class="text-[10px] font-semibold text-slate-500 block mb-1">Invoice</label>
+                    <input type="number" id="b_inv" placeholder="0" oninput="calculateScore()" class="soft-input w-full rounded-lg px-2 py-1.5 text-xs text-slate-800 font-semibold text-center">
+                </div>
+                <div>
+                    <label class="text-[10px] font-semibold text-slate-500 block mb-1">SKU</label>
+                    <input type="number" id="b_sku" placeholder="0" oninput="calculateScore()" class="soft-input w-full rounded-lg px-2 py-1.5 text-xs text-slate-800 font-semibold text-center">
+                </div>
+                <div>
+                    <label class="text-[10px] font-semibold text-slate-500 block mb-1">Qty</label>
+                    <input type="number" id="b_qty" placeholder="0" oninput="calculateScore()" class="soft-input w-full rounded-lg px-2 py-1.5 text-xs text-slate-800 font-semibold text-center">
+                </div>
+            </div>
+        </div>
+
+        <!-- Skor Bobot Sebelumnya (Input Manual) -->
+        <div class="soft-card p-3.5 flex items-center justify-between gap-3">
+            <div class="flex-1">
+                <label class="text-xs font-bold text-slate-700 block">Skor Bobot Sebelumnya</label>
+                <span class="text-[10px] text-slate-400">Ditambahkan langsung ke total akhir</span>
+            </div>
+            <div class="w-28">
+                <input type="number" id="prevScore" placeholder="0" oninput="calculateScore()" class="soft-input w-full rounded-lg px-3 py-1.5 text-xs text-slate-800 font-bold text-right">
+            </div>
+        </div>
+
+        <!-- Reset Button -->
+        <div class="pt-1 pb-2">
+            <button onclick="resetInputs()" class="w-full bg-slate-200 hover:bg-slate-300 active:bg-slate-400 text-slate-700 text-xs font-bold py-2 rounded-xl transition">
+                Reset Semua Input
+            </button>
+        </div>
+
+    </main>
+
+    <!-- ================= FIXED FOOTER ================= -->
+    <footer class="bg-white border-t border-slate-200 py-2.5 px-4 text-center shrink-0 z-20">
+        <p class="text-[11px] font-extrabold tracking-widest text-slate-400 uppercase">
+            POWERED BY MULY@.ID
+        </p>
+    </footer>
+
+    <!-- ================= MODAL INFORMATION (FITUR INFO '!') ================= -->
+    <div id="infoModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-2xl max-w-xs w-full p-4 space-y-3 shadow-2xl relative">
+            <div class="flex justify-between items-center border-b border-slate-100 pb-2">
+                <h3 class="text-xs font-extrabold text-blue-900 uppercase tracking-wider">Aturan Rumus & Bobot</h3>
+                <button onclick="toggleModal(false)" class="text-slate-400 hover:text-slate-600 font-bold text-sm leading-none">&times;</button>
+            </div>
+            <div class="text-[11px] text-slate-600 space-y-2">
+                <p class="font-semibold text-slate-700">Skor Baru dihitung dengan rumus:</p>
+                <div class="bg-blue-50 p-2 rounded-lg space-y-1 text-slate-700">
+                    <p>• <b>Single:</b> 60% Inv | 30% SKU | 10% Qty</p>
+                    <p>• <b>Multiple:</b> 60% Inv | 16% SKU | 24% Qty</p>
+                    <p>• <b>Bulk:</b> 60% Inv | 25% SKU | 14% Qty</p>
+                </div>
+                <div class="bg-amber-50 p-2 rounded-lg text-amber-800 border border-amber-200">
+                    <p><b>Catatan Kalkulasi Total:</b></p>
+                    <p>Total Akhir = (Total Skor Baru ÷ 2) + Skor Sebelumnya</p>
+                </div>
+            </div>
+            <button onclick="toggleModal(false)" class="w-full bg-blue-600 text-white font-bold text-xs py-2 rounded-lg">
+                Tutup
+            </button>
+        </div>
     </div>
 
+    <!-- ================= JAVASCRIPT LOGIC ================= -->
     <script>
-        // Formatter Helper
-        function formatNum(num) {
-            if (isNaN(num)) return '0';
-            return Number(num.toFixed(2)).toLocaleString('id-ID', {
-                maximumFractionDigits: 2
-            });
+        function toggleModal(show) {
+            const modal = document.getElementById('infoModal');
+            if (show) {
+                modal.classList.remove('hidden');
+            } else {
+                modal.classList.add('hidden');
+            }
         }
 
         function getVal(id) {
             const val = parseFloat(document.getElementById(id).value);
-            return isNaN(val) || val < 0 ? 0 : val;
+            return isNaN(val) ? 0 : val;
         }
 
-        // Main Calculation Engine
-        function calculateScores() {
-            // --- 1. SINGLE CATEGORY ---
-            const singleInv = getVal('single-inv');
-            const singleSku = getVal('single-sku');
-            const singleQty = getVal('single-qty');
+        function calculateScore() {
+            // 1. Single Calculation (60% Invoice, 30% SKU, 10% Qty)
+            const sInv = getVal('s_inv');
+            const sSku = getVal('s_sku');
+            const sQty = getVal('s_qty');
+            const singleTotal = (sInv * 0.60) + (sSku * 0.30) + (sQty * 0.10);
 
-            const scoreSingleInv = singleInv * 0.60;
-            const scoreSingleSku = singleSku * 0.30;
-            const scoreSingleQty = singleQty * 0.10;
-            const totalSingle = scoreSingleInv + scoreSingleSku + scoreSingleQty;
+            // 2. Multiple Calculation (60% Invoice, 16% SKU, 24% Qty)
+            const mInv = getVal('m_inv');
+            const mSku = getVal('m_sku');
+            const mQty = getVal('m_qty');
+            const multipleTotal = (mInv * 0.60) + (mSku * 0.16) + (mQty * 0.24);
 
-            // Update Single Displays
-            document.getElementById('sub-single-inv-score').innerText = formatNum(scoreSingleInv);
-            document.getElementById('sub-single-sku-score').innerText = formatNum(scoreSingleSku);
-            document.getElementById('sub-single-qty-score').innerText = formatNum(scoreSingleQty);
-            document.getElementById('score-single').innerText = formatNum(totalSingle);
-            document.getElementById('tbl-single-score').innerText = formatNum(totalSingle);
+            // 3. Bulk Calculation (60% Invoice, 25% SKU, 14% Qty)
+            const bInv = getVal('b_inv');
+            const bSku = getVal('b_sku');
+            const bQty = getVal('b_qty');
+            const bulkTotal = (bInv * 0.60) + (bSku * 0.25) + (bQty * 0.14);
 
-            // --- 2. MULTIPLE CATEGORY ---
-            const multipleInv = getVal('multiple-inv');
-            const multipleSku = getVal('multiple-sku');
-            const multipleQty = getVal('multiple-qty');
+            // Update Subtotal Displays
+            document.getElementById('subtotalSingle').innerText = `Subtotal: ${singleTotal.toFixed(2)}`;
+            document.getElementById('subtotalMultiple').innerText = `Subtotal: ${multipleTotal.toFixed(2)}`;
+            document.getElementById('subtotalBulk').innerText = `Subtotal: ${bulkTotal.toFixed(2)}`;
 
-            const scoreMultipleInv = multipleInv * 0.60;
-            const scoreMultipleSku = multipleSku * 0.16;
-            const scoreMultipleQty = multipleQty * 0.24;
-            const totalMultiple = scoreMultipleInv + scoreMultipleSku + scoreMultipleQty;
+            // Sum of New Current Scores
+            const currentScoreTotal = singleTotal + multipleTotal + bulkTotal;
 
-            // Update Multiple Displays
-            document.getElementById('sub-multiple-inv-score').innerText = formatNum(scoreMultipleInv);
-            document.getElementById('sub-multiple-sku-score').innerText = formatNum(scoreMultipleSku);
-            document.getElementById('sub-multiple-qty-score').innerText = formatNum(scoreMultipleQty);
-            document.getElementById('score-multiple').innerText = formatNum(totalMultiple);
-            document.getElementById('tbl-multiple-score').innerText = formatNum(totalMultiple);
+            // Divide by 2
+            const halvedCurrentScore = currentScoreTotal / 2;
 
-            // --- 3. BULK CATEGORY ---
-            const bulkInv = getVal('bulk-inv');
-            const bulkSku = getVal('bulk-sku');
-            const bulkQty = getVal('bulk-qty');
+            // Add Previous Score
+            const prevScore = getVal('prevScore');
+            const grandTotal = halvedCurrentScore + prevScore;
 
-            const scoreBulkInv = bulkInv * 0.60;
-            const scoreBulkSku = bulkSku * 0.26;
-            const scoreBulkQty = bulkQty * 0.14;
-            const totalBulk = scoreBulkInv + scoreBulkSku + scoreBulkQty;
+            // Update Total Overall Display
+            document.getElementById('totalScoreText').innerText = grandTotal.toFixed(2);
 
-            // Update Bulk Displays
-            document.getElementById('sub-bulk-inv-score').innerText = formatNum(scoreBulkInv);
-            document.getElementById('sub-bulk-sku-score').innerText = formatNum(scoreBulkSku);
-            document.getElementById('sub-bulk-qty-score').innerText = formatNum(scoreBulkQty);
-            document.getElementById('score-bulk').innerText = formatNum(totalBulk);
-            document.getElementById('tbl-bulk-score').innerText = formatNum(totalBulk);
+            // Target & Percentage Ring Update
+            const target = parseFloat(document.getElementById('statusSelect').value) || 390;
+            document.getElementById('targetDisplay').innerText = target;
 
-            // --- 4. PREVIOUS SCORE ---
-            const prevScore = getVal('prev-score-input');
-            document.getElementById('prev-score-badge').innerText = formatNum(prevScore);
-            document.getElementById('tbl-prev-score').innerText = formatNum(prevScore);
+            const percentage = target > 0 ? (grandTotal / target) * 100 : 0;
+            const roundedPercent = Math.min(Math.round(percentage), 999);
+            document.getElementById('percentText').innerText = roundedPercent + '%';
 
-            // --- DIVIDE BY 2 STEP & GRAND TOTAL ---
-            const currentSubtotal = totalSingle + totalMultiple + totalBulk;
-            const halfSubtotal = currentSubtotal / 2; // Hitung total bobot saat ini / 2
-            const grandTotal = halfSubtotal + prevScore;
-
-            document.getElementById('tbl-current-subtotal').innerText = formatNum(currentSubtotal);
-            document.getElementById('tbl-half-subtotal').innerText = formatNum(halfSubtotal);
-            document.getElementById('grand-total-display').innerText = formatNum(grandTotal);
-            document.getElementById('tbl-total-score').innerText = formatNum(grandTotal);
-
-            // Total Transactions Count
-            const totalInvoices = singleInv + multipleInv + bulkInv;
-            document.getElementById('grand-items-count').innerText = `${totalInvoices.toLocaleString('id-ID')} total invoice`;
-
-            // Dynamic Contribution Progress Bar
-            if (currentSubtotal > 0) {
-                const percSingle = (totalSingle / currentSubtotal) * 100;
-                const percMultiple = (totalMultiple / currentSubtotal) * 100;
-                const percBulk = (totalBulk / currentSubtotal) * 100;
-
-                document.getElementById('bar-single').style.width = `${percSingle}%`;
-                document.getElementById('bar-multiple').style.width = `${percMultiple}%`;
-                document.getElementById('bar-bulk').style.width = `${percBulk}%`;
-                document.getElementById('total-contribution-perc').innerText = '100%';
-            } else {
-                document.getElementById('bar-single').style.width = '0%';
-                document.getElementById('bar-multiple').style.width = '0%';
-                document.getElementById('bar-bulk').style.width = '0%';
-                document.getElementById('total-contribution-perc').innerText = '0%';
-            }
+            // SVG Stroke Dashoffset Calculation (0 to 100)
+            const circleProgress = Math.min(percentage, 100);
+            const dashoffset = 100 - circleProgress;
+            document.getElementById('progressCircle').style.strokeDashoffset = dashoffset;
         }
 
-        // Preset Example Data
-        function fillExampleData() {
-            document.getElementById('single-inv').value = 100;
-            document.getElementById('single-sku').value = 50;
-            document.getElementById('single-qty').value = 150;
-
-            document.getElementById('multiple-inv').value = 200;
-            document.getElementById('multiple-sku').value = 120;
-            document.getElementById('multiple-qty').value = 450;
-
-            document.getElementById('bulk-inv').value = 50;
-            document.getElementById('bulk-sku').value = 300;
-            document.getElementById('bulk-qty').value = 1200;
-
-            document.getElementById('prev-score-input').value = 250;
-
-            calculateScores();
-            showToast('Contoh data berhasil diisi!');
-        }
-
-        // Reset Inputs
-        function resetForm() {
+        function resetInputs() {
             const inputs = document.querySelectorAll('input[type="number"]');
             inputs.forEach(input => input.value = '');
-            calculateScores();
-            showToast('Form telah dibersihkan');
+            calculateScore();
         }
 
-        // Copy Results Summary
-        function copyResults() {
-            const singleScore = document.getElementById('score-single').innerText;
-            const multipleScore = document.getElementById('score-multiple').innerText;
-            const bulkScore = document.getElementById('score-bulk').innerText;
-            const currentSubtotal = document.getElementById('tbl-current-subtotal').innerText;
-            const halfSubtotal = document.getElementById('tbl-half-subtotal').innerText;
-            const prevScore = document.getElementById('prev-score-badge').innerText;
-            const grandTotal = document.getElementById('grand-total-display').innerText;
-
-            const textToCopy = `=== RINGKASAN SKOR BOBOT ===\n` +
-                `• Skor Single: ${singleScore}\n` +
-                `• Skor Multiple: ${multipleScore}\n` +
-                `• Skor Bulk: ${bulkScore}\n` +
-                `• Total Skor Baru: ${currentSubtotal}\n` +
-                `• Hasil Bagi 2 (Skor Baru Netto): ${halfSubtotal}\n` +
-                `• Skor Sebelumnya: ${prevScore}\n` +
-                `-----------------------------\n` +
-                `TOTAL BOBOT KESELURUHAN: ${grandTotal} poin`;
-
-            const tempInput = document.createElement('textarea');
-            tempInput.value = textToCopy;
-            document.body.appendChild(tempInput);
-            tempInput.select();
-            try {
-                document.execCommand('copy');
-                showToast('Hasil ringkasan berhasil disalin!');
-            } catch (err) {
-                showToast('Gagal menyalin text');
-            }
-            document.body.removeChild(tempInput);
-        }
-
-        // Toast Feedback Helper
-        function showToast(message) {
-            const toast = document.getElementById('toast');
-            const toastMsg = document.getElementById('toast-message');
-            toastMsg.innerText = message;
-            
-            toast.classList.remove('hidden');
-            toast.classList.add('toast-animate');
-
-            setTimeout(() => {
-                toast.classList.add('hidden');
-                toast.classList.remove('toast-animate');
-            }, 2500);
-        }
-
-        // Initialize on Load
+        // Initialize default view
         window.onload = function() {
-            calculateScores();
-        }
+            calculateScore();
+        };
     </script>
 </body>
-</html>
+    </html>
